@@ -1,0 +1,684 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Developer Guide &mdash; Certbot 0.10.0.dev0 documentation</title>
+  
+<!--
+
+ ██████╗███████╗██████╗ ████████╗██████╗  ██████╗ ████████╗
+██╔════╝██╔════╝██╔══██╗╚══██╔══╝██╔══██╗██╔═══██╗╚══██╔══╝
+██║     █████╗  ██████╔╝   ██║   ██████╔╝██║   ██║   ██║
+██║     ██╔══╝  ██╔══██╗   ██║   ██╔══██╗██║   ██║   ██║
+╚██████╗███████╗██║  ██║   ██║   ██████╔╝╚██████╔╝   ██║
+ ╚═════╝╚══════╝╚═╝  ╚═╝   ╚═╝   ╚═════╝  ╚═════╝    ╚═╝
+
+Like looking at code? Help us! https://github.com/certbot/certbot
+-->
+
+  
+  
+
+  <meta name="description" content="Automatically enable HTTPS on your website with EFF's Certbot, deploying Let's Encrypt certificates.">
+<meta property="og:image" content="https://certbot.eff.org/images/certbot-OG.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@EFF">
+<meta name="twitter:title" content="Developer Guide &mdash; Certbot 0.10.0.dev0 documentation">
+<meta name="twitter:description" content="Automatically enable HTTPS on your website with EFF's Certbot, deploying Let's Encrypt certificates.">
+<meta name="twitter:image" content="https://certbot.eff.org/images/certbot-OG.png">
+<meta name="twitter:image:alt" content="Certbot: An automatic client for enabling HTTPS on your website.">
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="Certbot 0.10.0.dev0 documentation" href="index.html"/>
+        <link rel="next" title="Packaging Guide" href="packaging.html"/>
+        <link rel="prev" title="User Guide" href="using.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <nav class="main-nav fixed">
+  <ul>
+    <li><a href="/"><img src="/images/EFF-logo-plain.svg" alt="Electronic Frontier Foundation"></a></li>
+    <li><a href="/">Home</a></li>
+    <li><a href="/about/">About Certbot</a></li>
+    <li><a href="/faq/">FAQ</a></li>
+    <li><a href="/docs/">Documentation</a></li>
+    <li><a href="/support/">Support</a></li>
+    <li><a target="_blank" rel="noreferrer" href="https://github.com/certbot/certbot">Source Code</a></li>
+    <li class="donate"><a target="_blank" href="https://supporters.eff.org/donate/support-work-on-certbot">donate to EFF</a></li>
+    <li id="hamburger">&#x2261;</li>
+  </ul>
+</nav>
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../" class="icon icon-home"> Certbot
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.10
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Get Certbot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="using.html">User Guide</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Developer Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#getting-started">Getting Started</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#running-a-local-copy-of-the-client">Running a local copy of the client</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#find-issues-to-work-on">Find issues to work on</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#testing">Testing</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#integration-testing-with-the-boulder-ca">Integration testing with the boulder CA</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#code-components-and-layout">Code components and layout</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#plugin-architecture">Plugin-architecture</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#authenticators">Authenticators</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#installer">Installer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#installer-development">Installer Development</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#display">Display</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#writing-your-own-plugin">Writing your own plugin</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#coding-style">Coding style</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#submitting-a-pull-request">Submitting a pull request</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#updating-the-documentation">Updating the documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#other-methods-for-running-the-client">Other methods for running the client</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#vagrant">Vagrant</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#docker">Docker</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#notes-on-os-dependencies">Notes on OS dependencies</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#debian">Debian</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#freebsd">FreeBSD</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="packaging.html">Packaging Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="resources.html">Resources</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API Documentation</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../">Certbot</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>Developer Guide</li>
+    <li class="wy-breadcrumbs-aside">
+      
+        
+          <a href="https://github.com/certbot/certbot/blob/master/docs/contributing.rst" class="fa fa-github"> Edit on GitHub</a>
+        
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="developer-guide">
+<h1>Developer Guide<a class="headerlink" href="#developer-guide" title="Permalink to this headline">¶</a></h1>
+<div class="contents local topic" id="table-of-contents">
+<p class="topic-title first">Table of Contents</p>
+<ul class="simple">
+<li><a class="reference internal" href="#getting-started" id="id3">Getting Started</a><ul>
+<li><a class="reference internal" href="#running-a-local-copy-of-the-client" id="id4">Running a local copy of the client</a></li>
+<li><a class="reference internal" href="#find-issues-to-work-on" id="id5">Find issues to work on</a></li>
+<li><a class="reference internal" href="#testing" id="id6">Testing</a><ul>
+<li><a class="reference internal" href="#integration-testing-with-the-boulder-ca" id="id7">Integration testing with the boulder CA</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#code-components-and-layout" id="id8">Code components and layout</a><ul>
+<li><a class="reference internal" href="#plugin-architecture" id="id9">Plugin-architecture</a></li>
+<li><a class="reference internal" href="#authenticators" id="id10">Authenticators</a></li>
+<li><a class="reference internal" href="#installer" id="id11">Installer</a></li>
+<li><a class="reference internal" href="#installer-development" id="id12">Installer Development</a><ul>
+<li><a class="reference internal" href="#display" id="id13">Display</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#writing-your-own-plugin" id="id14">Writing your own plugin</a></li>
+<li><a class="reference internal" href="#coding-style" id="id15">Coding style</a></li>
+<li><a class="reference internal" href="#submitting-a-pull-request" id="id16">Submitting a pull request</a></li>
+<li><a class="reference internal" href="#updating-the-documentation" id="id17">Updating the documentation</a></li>
+<li><a class="reference internal" href="#other-methods-for-running-the-client" id="id18">Other methods for running the client</a><ul>
+<li><a class="reference internal" href="#vagrant" id="id19">Vagrant</a></li>
+<li><a class="reference internal" href="#docker" id="id20">Docker</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#notes-on-os-dependencies" id="id21">Notes on OS dependencies</a><ul>
+<li><a class="reference internal" href="#debian" id="id22">Debian</a></li>
+<li><a class="reference internal" href="#freebsd" id="id23">FreeBSD</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="getting-started">
+<span id="id1"></span><h2><a class="toc-backref" href="#id3">Getting Started</a><a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="running-a-local-copy-of-the-client">
+<h3><a class="toc-backref" href="#id4">Running a local copy of the client</a><a class="headerlink" href="#running-a-local-copy-of-the-client" title="Permalink to this headline">¶</a></h3>
+<p>Running the client in developer mode from your local tree is a little
+different than running <code class="docutils literal"><span class="pre">letsencrypt-auto</span></code>.  To get set up, do these things
+once:</p>
+<div class="highlight-shell"><div class="highlight"><pre><span></span>git clone https://github.com/certbot/certbot
+<span class="nb">cd</span> certbot
+./letsencrypt-auto-source/letsencrypt-auto --os-packages-only
+./tools/venv.sh
+</pre></div>
+</div>
+<p>Then in each shell where you&#8217;re working on the client, do:</p>
+<div class="highlight-shell"><div class="highlight"><pre><span></span><span class="nb">source</span> ./venv/bin/activate
+</pre></div>
+</div>
+<p>After that, your shell will be using the virtual environment, and you run the
+client by typing:</p>
+<div class="highlight-shell"><div class="highlight"><pre><span></span>certbot
+</pre></div>
+</div>
+<p>Activating a shell in this way makes it easier to run unit tests
+with <code class="docutils literal"><span class="pre">tox</span></code> and integration tests, as described below. To reverse this, you
+can type <code class="docutils literal"><span class="pre">deactivate</span></code>.  More information can be found in the <a class="reference external" href="https://virtualenv.pypa.io">virtualenv docs</a>.</p>
+</div>
+<div class="section" id="find-issues-to-work-on">
+<h3><a class="toc-backref" href="#id5">Find issues to work on</a><a class="headerlink" href="#find-issues-to-work-on" title="Permalink to this headline">¶</a></h3>
+<p>You can find the open issues in the <a class="reference external" href="https://github.com/certbot/certbot/issues">github issue tracker</a>.  Comparatively
+easy ones are marked <a class="reference external" href="https://github.com/certbot/certbot/issues?q=is%3Aopen+is%3Aissue+label%3A%22Good+Volunteer+Task%22">Good Volunteer Task</a>.  If you&#8217;re starting work on
+something, post a comment to let others know and seek feedback on your plan
+where appropriate.</p>
+<p>Once you&#8217;ve got a working branch, you can open a pull request.  All changes in
+your pull request must have thorough unit test coverage, pass our
+<a class="reference internal" href="#integration">integration</a> tests, and be compliant with the <a class="reference internal" href="#coding-style"><span class="std std-ref">coding style</span></a>.</p>
+</div>
+<div class="section" id="testing">
+<h3><a class="toc-backref" href="#id6">Testing</a><a class="headerlink" href="#testing" title="Permalink to this headline">¶</a></h3>
+<p>The following tools are there to help you:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">tox</span></code> starts a full set of tests. Please note that it includes
+apacheconftest, which uses the system&#8217;s Apache install to test config file
+parsing, so it should only be run on systems that have an
+experimental, non-production Apache2 install on them.  <code class="docutils literal"><span class="pre">tox</span> <span class="pre">-e</span>
+<span class="pre">apacheconftest</span></code> can be used to run those specific Apache conf tests.</li>
+<li><code class="docutils literal"><span class="pre">tox</span> <span class="pre">--skip-missing-interpreters</span></code> runs tox while ignoring missing versions
+of Python needed for running the tests.</li>
+<li><code class="docutils literal"><span class="pre">tox</span> <span class="pre">-e</span> <span class="pre">py27</span></code>, <code class="docutils literal"><span class="pre">tox</span> <span class="pre">-e</span> <span class="pre">py26</span></code> etc, run unit tests for specific Python
+versions.</li>
+<li><code class="docutils literal"><span class="pre">tox</span> <span class="pre">-e</span> <span class="pre">cover</span></code> checks the test coverage only. Calling the
+<code class="docutils literal"><span class="pre">./tox.cover.sh</span></code> script directly (or even <code class="docutils literal"><span class="pre">./tox.cover.sh</span> <span class="pre">$pkg1</span>
+<span class="pre">$pkg2</span> <span class="pre">...</span></code> for any subpackages) might be a bit quicker, though.</li>
+<li><code class="docutils literal"><span class="pre">tox</span> <span class="pre">-e</span> <span class="pre">lint</span></code> checks the style of the whole project, while
+<code class="docutils literal"><span class="pre">pylint</span> <span class="pre">--rcfile=.pylintrc</span> <span class="pre">path</span></code> will check a single file or
+specific directory only.</li>
+<li>For debugging, we recommend <code class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">ipdb</span></code> and putting
+<code class="docutils literal"><span class="pre">import</span> <span class="pre">ipdb;</span> <span class="pre">ipdb.set_trace()</span></code> statement inside the source
+code. Alternatively, you can use Python&#8217;s standard library <a class="reference external" href="https://docs.python.org/2/library/pdb.html#module-pdb" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">pdb</span></code></a>,
+but you won&#8217;t get TAB completion...</li>
+</ul>
+<div class="section" id="integration-testing-with-the-boulder-ca">
+<span id="integration"></span><h4><a class="toc-backref" href="#id7">Integration testing with the boulder CA</a><a class="headerlink" href="#integration-testing-with-the-boulder-ca" title="Permalink to this headline">¶</a></h4>
+<p>Generally it is sufficient to open a pull request and let Github and Travis run
+integration tests for you.</p>
+<p>However, if you prefer to run tests, you can use Vagrant, using the Vagrantfile
+in Certbot&#8217;s repository. To execute the tests on a Vagrant box, the only
+command you are required to run is:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">tests</span><span class="o">/</span><span class="n">boulder</span><span class="o">-</span><span class="n">integration</span><span class="o">.</span><span class="n">sh</span>
+</pre></div>
+</div>
+<p>Otherwise, please follow the following instructions.</p>
+<p>Mac OS X users: Run <code class="docutils literal"><span class="pre">./tests/mac-bootstrap.sh</span></code> instead of
+<code class="docutils literal"><span class="pre">boulder-start.sh</span></code> to install dependencies, configure the
+environment, and start boulder.</p>
+<p>Otherwise, install <a class="reference external" href="https://golang.org">Go</a> 1.5, <code class="docutils literal"><span class="pre">libtool-ltdl</span></code>, <code class="docutils literal"><span class="pre">mariadb-server</span></code> and
+<code class="docutils literal"><span class="pre">rabbitmq-server</span></code> and then start <a class="reference external" href="https://github.com/letsencrypt/boulder">Boulder</a>, an ACME CA server.</p>
+<p>If you can&#8217;t get packages of Go 1.5 for your Linux system,
+you can execute the following commands to install it:</p>
+<div class="highlight-shell"><div class="highlight"><pre><span></span>wget https://storage.googleapis.com/golang/go1.5.3.linux-amd64.tar.gz -P /tmp/
+sudo tar -C /usr/local -xzf /tmp/go1.5.3.linux-amd64.tar.gz
+<span class="k">if</span> ! grep -Fxq <span class="s2">&quot;export GOROOT=/usr/local/go&quot;</span> ~/.profile <span class="p">;</span> <span class="k">then</span> <span class="nb">echo</span> <span class="s2">&quot;export GOROOT=/usr/local/go&quot;</span> &gt;&gt; ~/.profile<span class="p">;</span> <span class="k">fi</span>
+<span class="k">if</span> ! grep -Fxq <span class="s2">&quot;export PATH=\\</span><span class="nv">$GOROOT</span><span class="s2">/bin:\\</span><span class="nv">$PATH</span><span class="s2">&quot;</span> ~/.profile <span class="p">;</span> <span class="k">then</span> <span class="nb">echo</span> <span class="s2">&quot;export PATH=\\</span><span class="nv">$GOROOT</span><span class="s2">/bin:\\</span><span class="nv">$PATH</span><span class="s2">&quot;</span> &gt;&gt; ~/.profile<span class="p">;</span> <span class="k">fi</span>
+</pre></div>
+</div>
+<p>These commands download <a class="reference external" href="https://golang.org">Go</a> 1.5.3 to <code class="docutils literal"><span class="pre">/tmp/</span></code>, extracts to <code class="docutils literal"><span class="pre">/usr/local</span></code>,
+and then adds the export lines required to execute <code class="docutils literal"><span class="pre">boulder-start.sh</span></code> to
+<code class="docutils literal"><span class="pre">~/.profile</span></code> if they were not previously added</p>
+<p>Make sure you execute the following command after <a class="reference external" href="https://golang.org">Go</a> finishes installing:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>if ! grep -Fxq &quot;export GOPATH=\\$HOME/go&quot; ~/.profile ; then echo &quot;export GOPATH=\\$HOME/go&quot; &gt;&gt; ~/.profile; fi
+</pre></div>
+</div>
+<p>Afterwards, you&#8217;d be able to start <a class="reference external" href="https://github.com/letsencrypt/boulder">Boulder</a> using the following command:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">tests</span><span class="o">/</span><span class="n">boulder</span><span class="o">-</span><span class="n">start</span><span class="o">.</span><span class="n">sh</span>
+</pre></div>
+</div>
+<p>The script will download, compile and run the executable; please be
+patient - it will take some time... Once its ready, you will see
+<code class="docutils literal"><span class="pre">Server</span> <span class="pre">running,</span> <span class="pre">listening</span> <span class="pre">on</span> <span class="pre">127.0.0.1:4000...</span></code>. Add <code class="docutils literal"><span class="pre">/etc/hosts</span></code>
+entries pointing <code class="docutils literal"><span class="pre">le.wtf</span></code>, <code class="docutils literal"><span class="pre">le1.wtf</span></code>, <code class="docutils literal"><span class="pre">le2.wtf</span></code>, <code class="docutils literal"><span class="pre">le3.wtf</span></code>
+and <code class="docutils literal"><span class="pre">nginx.wtf</span></code> to 127.0.0.1.  You may now run (in a separate terminal):</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">tests</span><span class="o">/</span><span class="n">boulder</span><span class="o">-</span><span class="n">integration</span><span class="o">.</span><span class="n">sh</span> <span class="o">&amp;&amp;</span> <span class="n">echo</span> <span class="n">OK</span> <span class="o">||</span> <span class="n">echo</span> <span class="n">FAIL</span>
+</pre></div>
+</div>
+<p>If you would like to test <code class="xref py py-obj docutils literal"><span class="pre">certbot_nginx</span></code> plugin (highly
+encouraged) make sure to install prerequisites as listed in
+<code class="docutils literal"><span class="pre">certbot-nginx/tests/boulder-integration.sh</span></code> and rerun
+the integration tests suite.</p>
+</div>
+</div>
+</div>
+<div class="section" id="code-components-and-layout">
+<h2><a class="toc-backref" href="#id8">Code components and layout</a><a class="headerlink" href="#code-components-and-layout" title="Permalink to this headline">¶</a></h2>
+<dl class="docutils">
+<dt>acme</dt>
+<dd>contains all protocol specific code</dd>
+<dt>certbot</dt>
+<dd>all client code</dd>
+</dl>
+<div class="section" id="plugin-architecture">
+<h3><a class="toc-backref" href="#id9">Plugin-architecture</a><a class="headerlink" href="#plugin-architecture" title="Permalink to this headline">¶</a></h3>
+<p>Certbot has a plugin architecture to facilitate support for
+different webservers, other TLS servers, and operating systems.
+The interfaces available for plugins to implement are defined in
+<a class="reference external" href="https://github.com/certbot/certbot/blob/master/certbot/interfaces.py">interfaces.py</a> and <a class="reference external" href="https://github.com/certbot/certbot/blob/master/certbot/plugins/common.py#L34">plugins/common.py</a>.</p>
+<p>The most common kind of plugin is a &#8220;Configurator&#8221;, which is likely to
+implement the <a class="reference internal" href="api/interfaces.html#certbot.interfaces.IAuthenticator" title="certbot.interfaces.IAuthenticator"><code class="xref py py-obj docutils literal"><span class="pre">IAuthenticator</span></code></a> and
+<a class="reference internal" href="api/interfaces.html#certbot.interfaces.IInstaller" title="certbot.interfaces.IInstaller"><code class="xref py py-obj docutils literal"><span class="pre">IInstaller</span></code></a> interfaces (though some
+Configurators may implement just one of those).</p>
+<p>There are also <a class="reference internal" href="api/interfaces.html#certbot.interfaces.IDisplay" title="certbot.interfaces.IDisplay"><code class="xref py py-obj docutils literal"><span class="pre">IDisplay</span></code></a> plugins,
+which implement bindings to alternative UI libraries.</p>
+</div>
+<div class="section" id="authenticators">
+<h3><a class="toc-backref" href="#id10">Authenticators</a><a class="headerlink" href="#authenticators" title="Permalink to this headline">¶</a></h3>
+<p>Authenticators are plugins designed to prove that this client deserves a
+certificate for some domain name by solving challenges received from
+the ACME server. From the protocol, there are essentially two
+different types of challenges. Challenges that must be solved by
+individual plugins in order to satisfy domain validation (subclasses
+of <code class="xref py py-obj docutils literal"><span class="pre">DVChallenge</span></code>, i.e. <code class="xref py py-obj docutils literal"><span class="pre">TLSSNI01</span></code>,
+<code class="xref py py-obj docutils literal"><span class="pre">HTTP01</span></code>, <code class="xref py py-obj docutils literal"><span class="pre">DNS</span></code>) and continuity specific
+challenges (subclasses of <code class="xref py py-obj docutils literal"><span class="pre">ContinuityChallenge</span></code>,
+i.e. <code class="xref py py-obj docutils literal"><span class="pre">RecoveryToken</span></code>, <code class="xref py py-obj docutils literal"><span class="pre">RecoveryContact</span></code>,
+<code class="xref py py-obj docutils literal"><span class="pre">ProofOfPossession</span></code>). Continuity challenges are
+always handled by the <code class="xref py py-obj docutils literal"><span class="pre">ContinuityAuthenticator</span></code>, while plugins are
+expected to handle <code class="xref py py-obj docutils literal"><span class="pre">DVChallenge</span></code> types.
+Right now, we have two authenticator plugins, the <code class="xref py py-obj docutils literal"><span class="pre">ApacheConfigurator</span></code>
+and the <code class="xref py py-obj docutils literal"><span class="pre">StandaloneAuthenticator</span></code>. The Standalone and Apache
+authenticators only solve the <code class="xref py py-obj docutils literal"><span class="pre">TLSSNI01</span></code> challenge currently.
+(You can set which challenges your authenticator can handle through the
+<a class="reference internal" href="api/interfaces.html#certbot.interfaces.IAuthenticator.get_chall_pref" title="certbot.interfaces.IAuthenticator.get_chall_pref"><code class="xref py py-meth docutils literal"><span class="pre">get_chall_pref()</span></code></a>.</p>
+<p>(FYI: We also have a partial implementation for a <code class="xref py py-obj docutils literal"><span class="pre">DNSAuthenticator</span></code>
+in a separate branch).</p>
+</div>
+<div class="section" id="installer">
+<h3><a class="toc-backref" href="#id11">Installer</a><a class="headerlink" href="#installer" title="Permalink to this headline">¶</a></h3>
+<p>Installers plugins exist to actually setup the certificate in a server,
+possibly tweak the security configuration to make it more correct and secure
+(Fix some mixed content problems, turn on HSTS, redirect to HTTPS, etc).
+Installer plugins tell the main client about their abilities to do the latter
+via the <a class="reference internal" href="api/interfaces.html#certbot.interfaces.IInstaller.supported_enhancements" title="certbot.interfaces.IInstaller.supported_enhancements"><code class="xref py py-meth docutils literal"><span class="pre">supported_enhancements()</span></code></a> call. We currently
+have two Installers in the tree, the <code class="xref py py-obj docutils literal"><span class="pre">ApacheConfigurator</span></code>. and the
+<code class="xref py py-obj docutils literal"><span class="pre">NginxConfigurator</span></code>.  External projects have made some progress toward
+support for IIS, Icecast and Plesk.</p>
+<p>Installers and Authenticators will oftentimes be the same class/object
+(because for instance both tasks can be performed by a webserver like nginx)
+though this is not always the case (the standalone plugin is an authenticator
+that listens on port 443, but it cannot install certs; a postfix plugin would
+be an installer but not an authenticator).</p>
+<p>Installers and Authenticators are kept separate because
+it should be possible to use the <code class="xref py py-obj docutils literal"><span class="pre">StandaloneAuthenticator</span></code> (it sets
+up its own Python server to perform challenges) with a program that
+cannot solve challenges itself (Such as MTA installers).</p>
+</div>
+<div class="section" id="installer-development">
+<h3><a class="toc-backref" href="#id12">Installer Development</a><a class="headerlink" href="#installer-development" title="Permalink to this headline">¶</a></h3>
+<p>There are a few existing classes that may be beneficial while
+developing a new <a class="reference internal" href="api/interfaces.html#certbot.interfaces.IInstaller" title="certbot.interfaces.IInstaller"><code class="xref py py-obj docutils literal"><span class="pre">IInstaller</span></code></a>.
+Installers aimed to reconfigure UNIX servers may use Augeas for
+configuration parsing and can inherit from <code class="xref py py-obj docutils literal"><span class="pre">AugeasConfigurator</span></code> class
+to handle much of the interface. Installers that are unable to use
+Augeas may still find the <a class="reference internal" href="api/reverter.html#certbot.reverter.Reverter" title="certbot.reverter.Reverter"><code class="xref py py-obj docutils literal"><span class="pre">Reverter</span></code></a> class helpful in handling
+configuration checkpoints and rollback.</p>
+<div class="section" id="display">
+<h4><a class="toc-backref" href="#id13">Display</a><a class="headerlink" href="#display" title="Permalink to this headline">¶</a></h4>
+<p>We currently offer a pythondialog and &#8220;text&#8221; mode for displays. Display
+plugins implement the <a class="reference internal" href="api/interfaces.html#certbot.interfaces.IDisplay" title="certbot.interfaces.IDisplay"><code class="xref py py-obj docutils literal"><span class="pre">IDisplay</span></code></a>
+interface.</p>
+</div>
+</div>
+</div>
+<div class="section" id="writing-your-own-plugin">
+<span id="dev-plugin"></span><h2><a class="toc-backref" href="#id14">Writing your own plugin</a><a class="headerlink" href="#writing-your-own-plugin" title="Permalink to this headline">¶</a></h2>
+<p>Certbot client supports dynamic discovery of plugins through the
+<a class="reference external" href="http://setuptools.readthedocs.io/en/latest/pkg_resources.html#entry-points">setuptools entry points</a>. This way you can, for example, create a
+custom implementation of <a class="reference internal" href="api/interfaces.html#certbot.interfaces.IAuthenticator" title="certbot.interfaces.IAuthenticator"><code class="xref py py-obj docutils literal"><span class="pre">IAuthenticator</span></code></a> or
+the <a class="reference internal" href="api/interfaces.html#certbot.interfaces.IInstaller" title="certbot.interfaces.IInstaller"><code class="xref py py-obj docutils literal"><span class="pre">IInstaller</span></code></a> without having to merge it
+with the core upstream source code. An example is provided in
+<code class="docutils literal"><span class="pre">examples/plugins/</span></code> directory.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Please be aware though that as this client is still in a
+developer-preview stage, the API may undergo a few changes. If you
+believe the plugin will be beneficial to the community, please
+consider submitting a pull request to the repo and we will update
+it with any necessary API changes.</p>
+</div>
+</div>
+<div class="section" id="coding-style">
+<span id="id2"></span><h2><a class="toc-backref" href="#id15">Coding style</a><a class="headerlink" href="#coding-style" title="Permalink to this headline">¶</a></h2>
+<p>Please:</p>
+<ol class="arabic">
+<li><p class="first"><strong>Be consistent with the rest of the code</strong>.</p>
+</li>
+<li><p class="first">Read <a class="reference external" href="https://www.python.org/dev/peps/pep-0008">PEP 8 - Style Guide for Python Code</a>.</p>
+</li>
+<li><p class="first">Follow the <a class="reference external" href="https://google.github.io/styleguide/pyguide.html">Google Python Style Guide</a>, with the exception that we
+use <a class="reference external" href="http://sphinx-doc.org/">Sphinx-style</a> documentation:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">foo</span><span class="p">(</span><span class="n">arg</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Short description.</span>
+
+<span class="sd">    :param int arg: Some number.</span>
+
+<span class="sd">    :returns: Argument</span>
+<span class="sd">    :rtype: int</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">arg</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Remember to use <code class="docutils literal"><span class="pre">pylint</span></code>.</p>
+</li>
+</ol>
+</div>
+<div class="section" id="submitting-a-pull-request">
+<h2><a class="toc-backref" href="#id16">Submitting a pull request</a><a class="headerlink" href="#submitting-a-pull-request" title="Permalink to this headline">¶</a></h2>
+<p>Steps:</p>
+<ol class="arabic simple">
+<li>Write your code!</li>
+<li>Make sure your environment is set up properly and that you&#8217;re in your
+virtualenv. You can do this by running <code class="docutils literal"><span class="pre">./tools/venv.sh</span></code>.
+(this is a <strong>very important</strong> step)</li>
+<li>Run <code class="docutils literal"><span class="pre">./pep8.travis.sh</span></code> to do a cursory check of your code style.
+Fix any errors.</li>
+<li>Run <code class="docutils literal"><span class="pre">tox</span> <span class="pre">-e</span> <span class="pre">lint</span></code> to check for pylint errors. Fix any errors.</li>
+<li>Run <code class="docutils literal"><span class="pre">tox</span> <span class="pre">--skip-missing-interpreters</span></code> to run the entire test suite
+including coverage. The <code class="docutils literal"><span class="pre">--skip-missing-interpreters</span></code> argument ignores
+missing versions of Python needed for running the tests. Fix any errors.</li>
+<li>If your code touches communication with an ACME server/Boulder, you
+should run the integration tests, see <a class="reference internal" href="#integration">integration</a>. See <a href="#id24"><span class="problematic" id="id25">`Known Issues`_</span></a>
+for some common failures that have nothing to do with your code.</li>
+<li>Submit the PR.</li>
+<li>Did your tests pass on Travis? If they didn&#8217;t, fix any errors.</li>
+</ol>
+</div>
+<div class="section" id="updating-the-documentation">
+<h2><a class="toc-backref" href="#id17">Updating the documentation</a><a class="headerlink" href="#updating-the-documentation" title="Permalink to this headline">¶</a></h2>
+<p>In order to generate the Sphinx documentation, run the following
+commands:</p>
+<div class="highlight-shell"><div class="highlight"><pre><span></span>make -C docs clean html man
+</pre></div>
+</div>
+<p>This should generate documentation in the <code class="docutils literal"><span class="pre">docs/_build/html</span></code>
+directory.</p>
+</div>
+<div class="section" id="other-methods-for-running-the-client">
+<h2><a class="toc-backref" href="#id18">Other methods for running the client</a><a class="headerlink" href="#other-methods-for-running-the-client" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="vagrant">
+<h3><a class="toc-backref" href="#id19">Vagrant</a><a class="headerlink" href="#vagrant" title="Permalink to this headline">¶</a></h3>
+<p>If you are a Vagrant user, Certbot comes with a Vagrantfile that
+automates setting up a development environment in an Ubuntu 14.04
+LTS VM. To set it up, simply run <code class="docutils literal"><span class="pre">vagrant</span> <span class="pre">up</span></code>. The repository is
+synced to <code class="docutils literal"><span class="pre">/vagrant</span></code>, so you can get started with:</p>
+<div class="highlight-shell"><div class="highlight"><pre><span></span>vagrant ssh
+<span class="nb">cd</span> /vagrant
+sudo ./venv/bin/certbot
+</pre></div>
+</div>
+<p>Support for other Linux distributions coming soon.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Unfortunately, Python distutils and, by extension, setup.py and
+tox, use hard linking quite extensively. Hard linking is not
+supported by the default sync filesystem in Vagrant. As a result,
+all actions with these commands are <em>significantly slower</em> in
+Vagrant. One potential fix is to <a class="reference external" href="http://docs.vagrantup.com/v2/synced-folders/nfs.html">use NFS</a> (<a class="reference external" href="https://github.com/ClusterHQ/flocker/issues/516">related issue</a>).</p>
+</div>
+</div>
+<div class="section" id="docker">
+<h3><a class="toc-backref" href="#id20">Docker</a><a class="headerlink" href="#docker" title="Permalink to this headline">¶</a></h3>
+<p>OSX users will probably find it easiest to set up a Docker container for
+development. Certbot comes with a Dockerfile (<code class="docutils literal"><span class="pre">Dockerfile-dev</span></code>)
+for doing so. To use Docker on OSX, install and setup docker-machine using the
+instructions at <a class="reference external" href="https://docs.docker.com/installation/mac/">https://docs.docker.com/installation/mac/</a>.</p>
+<p>To build the development Docker image:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">docker</span> <span class="n">build</span> <span class="o">-</span><span class="n">t</span> <span class="n">certbot</span> <span class="o">-</span><span class="n">f</span> <span class="n">Dockerfile</span><span class="o">-</span><span class="n">dev</span> <span class="o">.</span>
+</pre></div>
+</div>
+<p>Now run tests inside the Docker image:</p>
+<div class="highlight-shell"><div class="highlight"><pre><span></span>docker run -it certbot bash
+<span class="nb">cd</span> src
+tox -e py27
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="notes-on-os-dependencies">
+<span id="prerequisites"></span><h2><a class="toc-backref" href="#id21">Notes on OS dependencies</a><a class="headerlink" href="#notes-on-os-dependencies" title="Permalink to this headline">¶</a></h2>
+<p>OS-level dependencies can be installed like so:</p>
+<div class="highlight-shell"><div class="highlight"><pre><span></span>letsencrypt-auto-source/letsencrypt-auto --os-packages-only
+</pre></div>
+</div>
+<p>In general...</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">sudo</span></code> is required as a suggested way of running privileged process</li>
+<li><a class="reference external" href="https://wiki.python.org/moin/BeginnersGuide/Download">Python</a> 2.6/2.7 is required</li>
+<li><a class="reference external" href="http://augeas.net/">Augeas</a> is required for the Python bindings</li>
+<li><code class="docutils literal"><span class="pre">virtualenv</span></code> and <code class="docutils literal"><span class="pre">pip</span></code> are used for managing other python library
+dependencies</li>
+</ul>
+<div class="section" id="debian">
+<h3><a class="toc-backref" href="#id22">Debian</a><a class="headerlink" href="#debian" title="Permalink to this headline">¶</a></h3>
+<p>For squeeze you will need to:</p>
+<ul class="simple">
+<li>Use <code class="docutils literal"><span class="pre">virtualenv</span> <span class="pre">--no-site-packages</span> <span class="pre">-p</span> <span class="pre">python</span></code> instead of <code class="docutils literal"><span class="pre">-p</span> <span class="pre">python2</span></code>.</li>
+</ul>
+</div>
+<div class="section" id="freebsd">
+<h3><a class="toc-backref" href="#id23">FreeBSD</a><a class="headerlink" href="#freebsd" title="Permalink to this headline">¶</a></h3>
+<p>Package installation for FreeBSD uses <code class="docutils literal"><span class="pre">pkg</span></code>, not ports.</p>
+<p>FreeBSD by default uses <code class="docutils literal"><span class="pre">tcsh</span></code>. In order to activate virtualenv (see
+below), you will need a compatible shell, e.g. <code class="docutils literal"><span class="pre">pkg</span> <span class="pre">install</span> <span class="pre">bash</span> <span class="pre">&amp;&amp;</span>
+<span class="pre">bash</span></code>.</p>
+</div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="packaging.html" class="btn btn-neutral float-right" title="Packaging Guide" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="using.html" class="btn btn-neutral" title="User Guide" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2014-2016 - The Certbot software and documentation are licensed under the Apache 2.0 license as described at https://eff.org/cb-license .
+
+    </p>
+  </div>
+  <!-- Built with Sphinx using a custom theme. --> 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+  <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      <span class="fa fa-book"> Other Versions</span>
+      v: 
+      <span class="fa fa-caret-down"></span>
+    </span>
+    <div class="rst-other-versions">
+      <dl>
+        <dt>Downloads</dt>
+        <dd><a href="certbot.pdf">PDF</a></dd>
+        <dd><a href="certbot.zip">HTML</a></dd>
+        <dd><a href="certbot.epub">Epub</a></dd>
+      </dl>
+      <hr/>
+
+    </div>
+  </div>
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.10.0.dev0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+<noscript><img src="https://anon-stats.eff.org/piwik.php?idsite=24&amp;rec=1&amp;action_name=Developer%20Guide%E2%80%94%20Certbot%200.10.0.dev0%20documentation" style="border:0" height="0" width="0" alt="" /></noscript>
+<div style="height: 0; width: 0; position: absolute" id="anon-stats"></div>
+<script type="text/javascript">
+document.getElementById('anon-stats').innerHTML = '<img src="https://anon-stats.eff.org/piwik.php?idsite=24&amp;rec=1&amp;urlref=' + encodeURIComponent(document.referrer) + '&amp;action_name=' + encodeURIComponent(document.title) + '" style="border:0" height="0" width="0" alt="" />';
+</script>
+</body>
+</html>
